@@ -18,6 +18,8 @@ HeapBox 0.9.4
         title: undefined,
         showFirst: true,
         inheritVisibility: true,
+        escapeHtml: true,
+        placeHolder: undefined,
 	    openStart: function(){},
 	    openComplete: function(){},
 	    closeStart: function(){},
@@ -49,6 +51,7 @@ HeapBox 0.9.4
 		this.instance = this.createInstance();
 		this._createElements();
 		this._setDefaultValues();
+        this.userSelectedOption = false;
 	},
 
 	/*
@@ -408,9 +411,15 @@ HeapBox 0.9.4
 		holderEl = $("#heapbox_"+this.instance.heapId).find(".holder");
 		selectedEl = $("#heapbox_"+this.instance.heapId).find(".heap ul li a.selected").last();
 
+        if(this.userSelectedOption) {
+            holderEl.attr('data-user-selected', selectedEl.attr('rel'));
+        }
+
     	if(selectedEl.length != 0)
     	{	
-    		if(this.options.title){
+            if(this.options.placeHolder && !this.userSelectedOption) {
+    			holderEl.html(this.options.placeHolder);
+            } else if(this.options.title){
     			holderEl.text(this.options.title);
     		}else{
     			holderEl.text(selectedEl.text());
@@ -425,7 +434,19 @@ HeapBox 0.9.4
     	}
     	else
     	{
-    		holderEl.text(this.options.emptyMessage);
+            if(this.options.placeHolder) {
+                if(self.options.escapeHtml) {
+                    holderEl.text(this.options.placeHolder);
+                } else {
+                    holderEl.html(this.options.placeHolder);
+                }
+            } else {
+                if(self.options.escapeHtml) {
+                    holderEl.text(this.options.emptyMessage);
+                } else {
+                    holderEl.html(this.options.emptyMessage);
+                }
+            }
     		this._removeHeapboxHolderEvents();
     		this._removeHeapboxHandlerEvents();
     	}
@@ -784,6 +805,7 @@ HeapBox 0.9.4
 	_heapChanged: function(self,clickedEl,keepOpened) {
 		
 		if(!keepOpened) this._closeheap(true,function(){},function(){});
+        this.userSelectedOption = true;
 		this._setSelected($(clickedEl));
 		this._setHolderTitle();
 		this._setHeapboxFocus();
