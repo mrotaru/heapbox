@@ -467,11 +467,24 @@
 
     /*
      * Set data to heap
+     * @param {String|Array} data
      */
     _setData: function(data)
     {
       var self = this;
-      var _data = jQuery.parseJSON(data);
+      var _data = [];
+      var type = jQuery.type(data);
+      if(type === 'array') {
+        _data = data;
+      } else if(type === 'string') {
+        try {
+          _data = jQuery.parseJSON(data);
+        } catch (e) {
+          console.error('JSON parsing error: ',e);
+        }
+      } else {
+        throw new Error('_setData(data): data must be array or string');
+      }
       var selected = false;
 
 
